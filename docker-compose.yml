@@ -1,0 +1,55 @@
+services:
+
+  productpage:
+    image: python:3.11
+    container_name: productpage
+    command: python -m http.server 8080
+    ports:
+      - "8080:8080"
+    networks:
+      - frontend
+      - backend
+
+  reviews:
+    image: eclipse-temurin:17
+    container_name: reviews
+    command: tail -f /dev/null
+    networks:
+      - backend
+      - ratings-net
+
+  details:
+    image: ruby:3.2
+    container_name: details
+    command: tail -f /dev/null
+    networks:
+      - backend
+
+  ratings:
+    image: node:20
+    container_name: ratings
+    command: tail -f /dev/null
+    networks:
+      - ratings-net
+
+  locust:
+    image: locustio/locust
+    container_name: locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locust:/mnt/locust
+    command: -f /mnt/locust/locustfile.py
+    networks:
+      - frontend
+
+networks:
+
+  frontend:
+    driver: bridge
+
+  backend:
+    driver: bridge
+
+  ratings-net:
+    driver: bridge
